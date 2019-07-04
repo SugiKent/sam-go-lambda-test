@@ -1,0 +1,91 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'sam-app
+
+  Sample SAM Template for sam-app
+
+  '
+Globals:
+  Api:
+    Cors:
+      AllowHeaders: '''Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'''
+      AllowMethods: '''DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT'''
+      AllowOrigin: '''*'''
+  Function:
+    Timeout: 5
+Outputs:
+  HelloWorldAPI:
+    Description: API Gateway endpoint URL for Prod environment for First Function
+    Value:
+      Fn::Sub: https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/
+  HelloWorldFunction:
+    Description: First Lambda Function ARN
+    Value:
+      Fn::GetAtt:
+      - HelloWorldFunction
+      - Arn
+  HelloWorldFunctionIamRole:
+    Description: Implicit IAM Role created for Hello World function
+    Value:
+      Fn::GetAtt:
+      - HelloWorldFunctionRole
+      - Arn
+Resources:
+  HelloWorldFunction:
+    Properties:
+      CodeUri: s3://go-sam-template-store/f6451a392d5432991e29a4b335f77f38
+      Environment:
+        Variables:
+          PARAM1: VALUE
+      Events:
+        CatchAll:
+          Properties:
+            Method: GET
+            Path: /hello/{personID}
+          Type: Api
+      Handler: hello-world
+      Runtime: go1.x
+      Tracing: Active
+    Type: AWS::Serverless::Function
+  ScoreRegisterFunction:
+    Properties:
+      CodeUri: s3://go-sam-template-store/ee0ea72de632d6f4c029168e7b62b854
+      Events:
+        CatchAll:
+          Properties:
+            Method: POST
+            Path: /scores
+          Type: Api
+      Handler: score-register
+      Policies: AmazonDynamoDBFullAccess
+      Runtime: go1.x
+      Tracing: Active
+    Type: AWS::Serverless::Function
+  TimelogFetcherFunction:
+    Properties:
+      CodeUri: s3://go-sam-template-store/8b7f108e7db3cd95ca867b527060c01c
+      Events:
+        CatchAll:
+          Properties:
+            Method: GET
+            Path: /timelogs
+          Type: Api
+      Handler: timelog-fetcher
+      Policies: AmazonDynamoDBReadOnlyAccess
+      Runtime: go1.x
+      Tracing: Active
+    Type: AWS::Serverless::Function
+  TimelogRegisterFunction:
+    Properties:
+      CodeUri: s3://go-sam-template-store/671578dae92ea1a531ca58802e154164
+      Events:
+        CatchAll:
+          Properties:
+            Method: POST
+            Path: /timelogs
+          Type: Api
+      Handler: timelog-register
+      Policies: AmazonDynamoDBFullAccess
+      Runtime: go1.x
+      Tracing: Active
+    Type: AWS::Serverless::Function
+Transform: AWS::Serverless-2016-10-31
